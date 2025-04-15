@@ -1,0 +1,13 @@
+[project]
+name = "lab4"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.8"
+dependencies = [
+    "ryu",
+]
+
+
+[tool.uv.sources]
+ryu = { path = "./ryu" }
