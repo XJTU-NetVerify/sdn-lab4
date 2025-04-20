@@ -1,0 +1,56 @@
+{
+    "nodes": {
+        "10.12.0.0/16": ["arizona", "asu", "berkeley", "ucla1", "colorado", "oregon", "osu", "usc1", "stanford", "utah", "washington", "wsu"],
+        "10.10.0.0/17": ["illinois", "iowa", "minnesota", "nebraska", "northwest", "purdue", "wisconsin", "ucla2", "usc2"],
+        "10.10.128.0/17": ["indiana", "maryland", "michigan", "msu", "ohio", "psu", "rutgers"]
+    },
+    "links": [
+        ["washington", "wsu", 2],
+        ["washington", "osu", 5],
+        ["osu", "oregon", 1],
+        ["wsu", "oregon", 6],
+        ["oregon", "berkeley", 7],
+        ["berkeley", "stanford", 1],
+        ["berkeley", "utah", 17],
+        ["stanford", "ucla1", 6],
+        ["ucla1", "usc1", 1],
+        ["usc1", "asu", 9],
+        ["asu", "arizona", 1],
+        ["utah", "colorado", 11],
+    
+        ["ucla1", "ucla2", 0],
+        ["usc1", "usc2", 0], 
+    
+        ["minnesota", "iowa", 14],
+        ["minnesota", "wisconsin", 11],
+        ["iowa", "illinois", 8],
+        ["illinois", "northwest", 2],
+        ["illinois", "nebraska", 10],
+        ["illinois", "ucla2", 42],
+        ["illinois", "purdue", 11],
+        ["northwest", "wisconsin", 3],
+        ["wisconsin", "usc2", 46],
+    
+        ["purdue", "indiana", 2],
+    
+        ["indiana", "ohio", 9],
+        ["ohio", "michigan", 6],
+        ["ohio", "maryland", 17],
+        ["michigan", "msu", 4],
+        ["maryland", "psu", 22],
+        ["maryland", "rutgers", 8]
+    ],
+    "gateways": {
+        "10.12.0.0/16": {
+            "10.10.0.0/16": [{ "via": "ucla1", "next": "ucla2" }, { "via": "usc1", "next": "usc2" }]
+        },
+        "10.10.0.0/17": {
+            "10.12.0.0/16": [{ "via": "ucla2", "next": "ucla1"}, { "via": "usc2", "next": "usc1" }],
+            "10.10.128.0/17": [{ "via": "purdue", "next": "indiana" }]
+        },
+        "10.10.128.0/17": {
+            "10.10.0.0/17": [{ "via": "indiana", "next": "purdue" }],
+            "10.12.0.0/16": [{ "via": "indiana", "next": "purdue" }]
+        }
+    }
+}

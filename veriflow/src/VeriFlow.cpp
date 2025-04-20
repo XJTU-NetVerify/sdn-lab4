@@ -1164,7 +1164,7 @@ bool VeriFlow::traverseForwardingGraph(const EquivalenceClass& packetClass, Forw
 	const list< ForwardingLink >& linkList = graph->links[currentLocation];
 	list< ForwardingLink >::const_iterator itr = linkList.begin();
 	// input_port as a filter
-	if(lastHop.compare("NULL") == 0 || itr->rule.in_port == 65536){
+	if(lastHop.compare("NULL") == 0 || itr->rule.in_port == 0){
 		// do nothing
 	}
 	else{

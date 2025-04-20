@@ -388,6 +388,7 @@ void OpenFlowProtocolMessage::processFlowMod(const char* data, ProxyConnectionIn
 			if(ntohs(actionHeader[i].type) == OFPAT_OUTPUT)
 			{
 				const ofp_action_output* oao = (const ofp_action_output*)&(actionHeader[i]);
+                if (ntohs(oao->port) == OFPP_CONTROLLER) continue; // ignore controller messages.
 				// fprintf(fp, "[Output] type %u len %u port %u max_len %u\n",
 				//		ntohs(oao->type), ntohs(oao->len), ntohs(oao->port), ntohs(oao->max_len));
 
