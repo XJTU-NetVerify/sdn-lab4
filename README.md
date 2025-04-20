@@ -36,7 +36,7 @@ uv python install 3.9
 
 你为ARPANET做出的贡献非常显著。你使用SDN的解决方案，使用最短时延路径、并且可以容忍链路故障的方式，在初期网络不稳定、高时延的性质，比那些用STP的人不知道高到哪里去了；于是，美国的网络开始按照你的建议，使用SDN作为底层架构。
 
-时间来到2025年。威斯康辛大学麦迪逊分校（`wisconsin`）、伊利诺伊大学厄巴纳-香槟分校分校（`illinois`）、普渡大学（`purdue`）、宾夕法尼亚州立大学（`psu`）等大学建立了学术和体育联盟 - 十大联盟（Big 10）。他们利用你的最短试验路径的SDN解决方案，成功建立了一套共享学术、体育信息的网络。
+时间来到2025年。威斯康辛大学麦迪逊分校（`wisconsin`）、伊利诺伊大学厄巴纳-香槟分校分校（`illinois`）、普渡大学（`purdue`）、宾夕法尼亚州立大学（`psu`）等大学建立了学术和体育联盟 - 十大联盟（Big 10）。他们利用你的最短时延路径的SDN解决方案，成功建立了一套共享学术、体育信息的网络。
 
 然而最近他们遇到了一个棘手的问题。来自美国西海岸的加州大学洛杉矶分校（`ucla`）、南加州大学（`usc`）等原太平洋12校联盟（Pac-12）成员也想加入十大联盟，加入这个共享网络。但由于这两所学校地理位置的特殊性以及既有网络的复杂性，你借鉴了BGP协议自治系统（autonomous system, AS）的想法，决定这样设计这个网络：
 
@@ -72,7 +72,7 @@ TOPO=simple.txt CONFIG=simple.config.json uv run ryu-manager ryu.app.ofctl_rest 
 mininet> ucla2 ping purdue
 
 # 4. 下发从illinois途经wisconsin到达ucla2的路径之后，你尝试ucla2 ping purdue失败
-./gen_loop.py
+uv run ./gen_loop.py
 
 # 5. 查看路径上某一个交换机，如illinois的流表，发现匹配某一条流表的数据包数目异常增加
 # 也可打开wireshark观察该端口，发现不断增加的ICMP Request报文
@@ -96,7 +96,7 @@ make -C veriflow -j$(nproc)
 
 
 # 2. 在自定义端口开启远程控制器，运行AS控制器程序
-uv run ryu-manager ryu.app.ofctl_rest as_switch.py --ofp-tcp-listen-port 1024
+TOPO=simple.txt CONFIG=simple.config.json uv run ryu-manager ryu.app.ofctl_rest as_switch.py --ofp-tcp-listen-port 1024
 
 
 # 3. 运行VeriFlow的proxy模式
@@ -114,7 +114,7 @@ sudo ./simple.py
 mininet> ucla2 ping purdue
 
 # 4. 下发从illinois途经wisconsin到达ucla2的路径，在log文件中观察VeriFlow检测到的环路信息。
-./gen_loop.py
+uv run ./gen_loop.py
 ```
 
 ### VeriFlow源码中的主要类或函数
@@ -150,15 +150,29 @@ VeriFlow::traverseForwardingGraph()
 
 ### 实验内容
 
+请你完成热身内容，并将实验过程和结果记录到实验报告中。
+
 1. 输出每次影响EC的数量。
 2. 打印出环路路径的信息。
-3. 进一步打印出环路对应的EC的相关信息。
+3. 进一步打印出环路对应的EC的相关信息。仅展示源MAC、目的MAC和TCP/IP五元组（即源IP、目的IP、协议、源端口、目的端口）。
 
 这些任务在VeriFlow源代码中均有基本的实现，你只需要认真阅读代码，稍加改动就可以完成以上的热身任务！
 注意，在每次更改完VeriFlow源代码时，需要使用`make`重新编译：
 
 ```bash
 make -C veriflow -j$(nproc)
+```
+
+### 示例输出结果
+
+```bash
+# 影响EC的数量
+[VeriFlow::verifyRule] ecCount: 8
+
+# 环路路径、环路EC信息
+[VeriFlow::traverseForwardingGraph] Found a LOOP for the following packet class at node 20.0.0.006.6.
+[VeriFlow::traverseForwardingGraph] PacketClass: [EquivalenceClass] dl_src (00:00:00:00:00:00, ff:ff:ff:ff:ff:ff), dl_dst (00:00:00:00:00:00, ff:ff:ff:ff:ff:ff), nw_src (10.10.0.5, 255.255.255.255), nw_dst (10.10.0.0, 10.10.255.255), nw_proto (0, 255), tp_src (0, 65535), tp_dst (0, 65535)
+20.0.0.006.6 -> 20.0.0.003.3 -> 20.0.0.004.4 -> 20.0.0.007.7 -> 20.0.0.002.2 -> 20.0.0.001.1 -> 20.0.0.006.6
 ```
 
 ## 实验：黑洞和VeriFlow的局限
@@ -169,7 +183,7 @@ make -C veriflow -j$(nproc)
 ```bash
 
 # 1. 在自定义端口开启远程控制器，运行AS控制器程序
-uv run ryu-manager ryu.app.ofctl_rest as_switch.py --ofp-tcp-listen-port 1024
+TOPO=simple.txt CONFIG=simple.config.json uv run ryu-manager ryu.app.ofctl_rest as_switch.py --ofp-tcp-listen-port 1024
 
 # 2. 运行VeriFlow的proxy模式：
 veriflow/VeriFlow 6633 127.0.0.1 1024 simple.txt veriflow.log
@@ -197,16 +211,16 @@ mininet> ucla1 ping illinois
 上图是在连通性测试后的流表示意图。你很快找出了黑洞的原因，并手动添加了几条流表项来解决这个问题。
 
 ```bash
-./fix_path.py
+uv run ./fix_path.py
 ```
 其中，`fix_path.py`解决了以上两个等价类在传输过程中无法正确抵达目的地的问题：
 ```python
 #!/usr/bin/env python3
 from utils.flowmod import send_flow_mod
 
-send_flow_mod(6, None, None, '10.12.0.0/16', '10.10.0.0/17', None, 3)
-send_flow_mod(3, None, None, '10.12.0.0/16', '10.10.0.0/17', None, 1)
-send_flow_mod(1, None, None, '10.10.0.0/17', '10.12.0.0/16', None, 1)
+send_flow_mod(6, None, None, None, '10.10.0.0/16', None, 3)
+send_flow_mod(3, None, None, None, '10.10.0.0/16', None, 1)
+send_flow_mod(1, None, None, None, '10.12.0.0/16', None, 1)
 ```
 然而，你发现即使这个问题理论上解决了，但是，VeriFlow的发现的网络错误没有消失！
 
@@ -256,10 +270,41 @@ for(unsigned int i = 0; i < faults.size(); i++) {
 我们鼓励你自己思考解决方案；但你如果没有头绪，可以参考以下的解决方式：
 > <div style="transform: rotate(180deg)"><b>一种解决方法</b>：删除<code>packetClass</code>影响的已有<code>fault</code>时，如果一个<code>fault</code>和<code>packetClass</code>有交集，那么为保持一致性，该<code>fault</code>要将和这个<code>packetClass</code>交集的部分删除；若删除交集后该<code>fault</code>是空的（即没有覆盖到任何一个域），则将这个<code>fault</code>去除。</div>
 
+
+
+### 示例输出
+`ucla1 ping illinois`之前（运行`illinois ping wisconsin`）：
+
+```
+faults size: 1
+faults size: 0
+faults size: 1
+faults size: 0
+```
+
+`ucla1 ping illinois`之后，修复之前：
+
+```
+faults size: 1
+faults size: 5
+faults size: 4
+faults size: 8
+faults size: 8
+faults size: 9
+```
+
+修复之后：
+
+```
+faults size: 18
+faults size: 5
+faults size: 0
+```
+
 ### 选做题：网络验证和分析
 以下的任务较多；你可以根据你的能力，完成任意一个项目均可。
 
-1. 阅读`as_switch.py`有关数据包转发的代码，解释产生黑洞的原因。请说明，产生的黑洞问题会不会影响网络的实际使用？修改`as_switch.py`，使得同样的ping操作使得不会再产生黑洞。
+1. 阅读`as_switch.py`有关数据包转发的代码，解释产生黑洞的原因。请说明，产生的黑洞问题会不会影响网络的实际使用？修改`as_switch.py`，使得同样的ping操作不会再产生黑洞。
 3. 在“十大联盟”网络中，各个学校建立了若干服务：
     - 使用TCP 80端口（HTTP）交换体育信息。
     - 使用TCP 21端口（FTP）交换学术信息。

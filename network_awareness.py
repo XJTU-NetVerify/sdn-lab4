@@ -74,12 +74,7 @@ class NetworkAwareness(app_manager.RyuApp):
                             self.port_info[dpid].add(port_id)
                         self.link_info[(dpid, peer)] = port_id
                         if not is_external:
-                            self.topo_map.add_edge(dpid, peer, hop=1, delay=delay)
-                
-            print("Port: ", self.port_info)
-                        
-                    
-                    
+                            self.topo_map.add_edge(dpid, peer, hop=1, delay=delay)   
             
             
     def add_flow(self, datapath, priority, match, actions):
